@@ -658,28 +658,28 @@
   document.getElementById('price-input').addEventListener('keydown', e => { if(e.key==='Enter') calcPrice(); });
   document.getElementById('subsidy-input').addEventListener('keydown', e => { if(e.key==='Enter') calcMaxPower(); });
 
-  // ===== VISITOR COUNTER (localStorage) =====
-  (function() {
+  // ===== VISITOR COUNTER (counter.php @ rid.go.th) =====
+  (async function() {
     const el   = document.getElementById('visitor-count');
-    const KEY  = 'bclc23_visit_count';
-    const SEED = 1284; // base count
     const fmt2 = n => new Intl.NumberFormat('th-TH').format(n);
-
-    // get stored count, increment, save
-    const stored = parseInt(localStorage.getItem(KEY) || '0', 10);
-    const next   = stored + 1;
-    localStorage.setItem(KEY, next);
-    const target = SEED + next;
-
-    // animate count-up
-    el.classList.remove('loading');
-    let current = Math.max(SEED, target - 40);
-    const step = () => {
-      current = Math.min(current + Math.ceil((target - current) / 5 + 1), target);
-      el.textContent = fmt2(current);
-      if (current < target) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+    const API  = 'https://bclc23.rid.go.th/6040/counter.php';
+    try {
+      const res  = await fetch(API);
+      const data = await res.json();
+      const target = data.count || 0;
+      el.classList.remove('loading');
+      // animate count-up
+      let current = Math.max(0, target - 40);
+      const step = () => {
+        current = Math.min(current + Math.ceil((target - current) / 5 + 1), target);
+        el.textContent = fmt2(current);
+        if (current < target) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    } catch(e) {
+      el.classList.remove('loading');
+      el.textContent = '—';
+    }
   })();
 </script>
 </body>
