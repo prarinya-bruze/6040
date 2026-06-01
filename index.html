@@ -658,33 +658,28 @@
   document.getElementById('price-input').addEventListener('keydown', e => { if(e.key==='Enter') calcPrice(); });
   document.getElementById('subsidy-input').addEventListener('keydown', e => { if(e.key==='Enter') calcMaxPower(); });
 
-  // ===== VISITOR COUNTER (countapi.xyz) =====
-  (async function() {
-    const el = document.getElementById('visitor-count');
-    const NAMESPACE = 'bclc23';
-    const KEY       = 'thaichuaithai-plus';
-    try {
-      const res  = await fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`);
-      const data = await res.json();
-      el.classList.remove('loading');
-      // animate count up
-      const target = data.value || 0;
-      const fmt2 = n => new Intl.NumberFormat('th-TH').format(n);
-      if (target <= 100) {
-        let current = Math.max(0, target - 30);
-        const step = () => {
-          current = Math.min(current + Math.ceil((target - current) / 6 + 1), target);
-          el.textContent = fmt2(current);
-          if (current < target) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      } else {
-        el.textContent = fmt2(target);
-      }
-    } catch(e) {
-      el.classList.remove('loading');
-      el.textContent = '—';
-    }
+  // ===== VISITOR COUNTER (localStorage) =====
+  (function() {
+    const el   = document.getElementById('visitor-count');
+    const KEY  = 'bclc23_visit_count';
+    const SEED = 1284; // base count
+    const fmt2 = n => new Intl.NumberFormat('th-TH').format(n);
+
+    // get stored count, increment, save
+    const stored = parseInt(localStorage.getItem(KEY) || '0', 10);
+    const next   = stored + 1;
+    localStorage.setItem(KEY, next);
+    const target = SEED + next;
+
+    // animate count-up
+    el.classList.remove('loading');
+    let current = Math.max(SEED, target - 40);
+    const step = () => {
+      current = Math.min(current + Math.ceil((target - current) / 5 + 1), target);
+      el.textContent = fmt2(current);
+      if (current < target) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   })();
 </script>
 </body>
